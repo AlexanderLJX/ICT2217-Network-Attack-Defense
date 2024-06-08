@@ -5,8 +5,8 @@ import threading
 import time
 
 # IP addresses
-victim_ip = "192.168.1.254"
-gateway_ip = "192.168.1.1"
+victim_ip = "192.168.1.3"
+gateway_ip = "192.168.2.1"
 
 # MAC addresses (will be fetched dynamically)
 victim_mac = None
