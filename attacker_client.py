@@ -165,6 +165,6 @@ if __name__ == "__main__":
             logs.append(output.strip())
     
     with open("mitmproxy_logs.txt", "w") as f:
-        f.write("\n".join(logs))z
+        f.write("\n".join(logs))
     
     print("[*] mitmproxy logs saved to mitmproxy_logs.txt")
