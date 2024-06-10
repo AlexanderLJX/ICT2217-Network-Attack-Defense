@@ -4,7 +4,7 @@ import os
 HTTP_PORT = [443,80]
 
 def content(pkt):
-	if pkt.haslayer(TCP) and pkt.src == getmacbyip(c.VICTIM_IP):
+	if pkt.haslayer(TCP) and (pkt.src == getmacbyip(c.VICTIM_IP) or pkt.dst == getmacbyip(c.VICTIM_IP)):
 		if pkt[TCP].dport in HTTP_PORT:
 			wrpcap("content.pcap",pkt,append=True)
 def checkfile(filename):
