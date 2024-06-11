@@ -41,6 +41,6 @@ def parse_hsts_bypass_config(filename):
     return custom_domains
 
 if __name__ == "__main__":
-    custom_domains = parse_hsts_bypass_config('hsts_bypass.cfg')
+    custom_domains = ["cat.com", 'google.com', 'facebook.com']
     dns_resolver = DNSResolver(custom_domains)
     dns_resolver.start()
