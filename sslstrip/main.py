@@ -12,7 +12,7 @@ def main():
     # parser.add_argument('--target-ip', type=str, required=True, help="Target IP for ARP spoofing")
     # parser.add_argument('--gateway-ip', type=str, required=True, help="Gateway IP for ARP spoofing")
 
-    args = parser.parse_args()
+    # args = parser.parse_args()
 
     custom_domains = ["cat.com", 'google.com', 'facebook.com']
 
