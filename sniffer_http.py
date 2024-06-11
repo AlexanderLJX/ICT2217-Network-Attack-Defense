@@ -2,9 +2,10 @@ from scapy.all import *
 import constants as c
 import os
 HTTP_PORT = [443,80]
+VICTIM_SERVER_MAC = [getmacbyip(c.VICTIM_IP),getmacbyip(c.VICTIM_IP)]
 
 def content(pkt):
-	if pkt.haslayer(TCP) and (pkt.src == getmacbyip(c.VICTIM_IP) or pkt.dst == getmacbyip(c.VICTIM_IP)):
+	if pkt.haslayer(TCP) and pkt.src in VICTIM_SERVER_MAC:
 		if pkt[TCP].dport in HTTP_PORT:
 			wrpcap("content.pcap",pkt,append=True)
 def checkfile(filename):
