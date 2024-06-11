@@ -27,7 +27,7 @@ def main():
 	sniff(count=5,lfilter=content)
 
 HTTP_PORT = [443,80]
-VICTIM_SERVER_MAC = [getmacbyip(c.VICTIM_IP),getmacbyip(c.VICTIM_IP)]
+VICTIM_SERVER_MAC = [get_mac(c.VICTIM_IP),get_mac(c.VICTIM_IP)]
 
 if __name__ == "__main__":
 	main()
