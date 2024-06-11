@@ -20,14 +20,14 @@ def main():
         dns_resolver = DNSResolver(custom_domains)
         threading.Thread(target=dns_resolver.start).start()
         
-        try:
-            while True:
-                arp_spoof(args.target_ip, args.gateway_ip)
-                arp_spoof(args.gateway_ip, args.target_ip)
-                time.sleep(1)
-        except KeyboardInterrupt:
-            restore(args.target_ip, args.gateway_ip)
-            restore(args.gateway_ip, args.target_ip)
+        # try:
+        #     while True:
+        #         arp_spoof(args.target_ip, args.gateway_ip)
+        #         arp_spoof(args.gateway_ip, args.target_ip)
+        #         time.sleep(1)
+        # except KeyboardInterrupt:
+        #     restore(args.target_ip, args.gateway_ip)
+        #     restore(args.gateway_ip, args.target_ip)
 
 if __name__ == "__main__":
     main()
