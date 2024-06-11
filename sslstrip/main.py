@@ -14,7 +14,7 @@ def main():
 
     args = parser.parse_args()
 
-    custom_domains = parse_hsts_bypass_config(args.config)
+    custom_domains = ["cat.com", 'google.com', 'facebook.com']
 
     # if args.bypass_hsts:
     dns_resolver = DNSResolver(custom_domains)
