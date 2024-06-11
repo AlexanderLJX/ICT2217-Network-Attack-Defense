@@ -9,8 +9,8 @@ def main():
     parser = argparse.ArgumentParser(description="MITMf with SSLstrip+ and custom DNS resolver")
     parser.add_argument('--bypass-hsts', action='store_true', help="Enable HSTS bypass")
     parser.add_argument('--config', type=str, help="Path to hsts_bypass.cfg", default='hsts_bypass.cfg')
-    parser.add_argument('--target-ip', type=str, required=True, help="Target IP for ARP spoofing")
-    parser.add_argument('--gateway-ip', type=str, required=True, help="Gateway IP for ARP spoofing")
+    # parser.add_argument('--target-ip', type=str, required=True, help="Target IP for ARP spoofing")
+    # parser.add_argument('--gateway-ip', type=str, required=True, help="Gateway IP for ARP spoofing")
 
     args = parser.parse_args()
 
