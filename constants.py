@@ -1,3 +1,3 @@
 # IP addresses
-VICTIM_IP = "192.168.2.4"
+VICTIM_IP = "192.168.2.3"
 GATEWAY_IP = "192.168.2.254"
