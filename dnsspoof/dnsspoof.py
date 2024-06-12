@@ -18,8 +18,8 @@ def clone_website(url, save_dir):
         os.makedirs(save_dir)
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
-    conn = http.client.HTTPSConnection("example.com")
-    response = conn.request("GET", "/", headers=headers)
+    conn = http.client.HTTPSConnection(url)
+    response = conn.request("GET", "/")
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # Save the main page
