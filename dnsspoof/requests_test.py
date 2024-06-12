@@ -1,7 +1,14 @@
-import socket
-import ssl
+class Response:
+    def __init__(self, status_code, headers, text):
+        self.status_code = status_code
+        self.headers = headers
+        self.text = text
+        self.content = text.encode()  # To mimic the `content` attribute of `requests.Response`
 
-def simple_http_get(host, path):
+
+import socket
+
+def http_get(host, path):
     # Create a socket object
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(10)  # Set timeout
@@ -9,7 +16,7 @@ def simple_http_get(host, path):
     try:
         # Connect to the server
         sock.connect((host, 80))
-        
+
         # Create and send the HTTP GET request
         request = f"GET {path} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n"
         sock.sendall(request.encode())
@@ -29,13 +36,27 @@ def simple_http_get(host, path):
 
     # Decode the response
     response_text = response.decode()
-    
+
     # Split headers and body
-    headers, body = response_text.split("\r\n\r\n", 1)
-    return headers, body
+    headers_text, body = response_text.split("\r\n\r\n", 1)
+    headers_lines = headers_text.split("\r\n")
+    
+    # Extract status code
+    status_line = headers_lines[0]
+    status_code = int(status_line.split()[1])
+    
+    # Extract headers
+    headers = {}
+    for header_line in headers_lines[1:]:
+        key, value = header_line.split(": ", 1)
+        headers[key] = value
+    
+    return Response(status_code, headers, body)
 
 
-def simple_https_get(host, path):
+import ssl
+
+def https_get(host, path):
     # Create a socket object
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(10)  # Set timeout
@@ -69,20 +90,17 @@ def simple_https_get(host, path):
     response_text = response.decode()
 
     # Split headers and body
-    headers, body = response_text.split("\r\n\r\n", 1)
-    return headers, body
-
-# # Usage example
-# host = 'example.com'
-# path = '/'
-# headers, body = simple_https_get(host, path)
-# print('Headers:', headers)
-# print('Body:', body[:500])  # Print the first 500 characters of the body
-
-
-# # Usage example
-# host = 'example.com'
-# path = '/'
-# headers, body = simple_http_get(host, path)
-# print('Headers:', headers)
-# print('Body:', body[:500])  # Print the first 500 characters of the body
+    headers_text, body = response_text.split("\r\n\r\n", 1)
+    headers_lines = headers_text.split("\r\n")
+    
+    # Extract status code
+    status_line = headers_lines[0]
+    status_code = int(status_line.split()[1])
+    
+    # Extract headers
+    headers = {}
+    for header_line in headers_lines[1:]:
+        key, value = header_line.split(": ", 1)
+        headers[key] = value
+    
+    return Response(status_code, headers, body)
