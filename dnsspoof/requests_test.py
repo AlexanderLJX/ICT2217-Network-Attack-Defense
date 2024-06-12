@@ -33,9 +33,9 @@ def simple_http_get(host, path):
     headers, body = response_text.split("\r\n\r\n", 1)
     return headers, body
 
-# Usage example
-host = 'example.com'
-path = '/'
-headers, body = simple_http_get(host, path)
-print('Headers:', headers)
-print('Body:', body[:500])  # Print the first 500 characters of the body
+# # Usage example
+# host = 'example.com'
+# path = '/'
+# headers, body = simple_http_get(host, path)
+# print('Headers:', headers)
+# print('Body:', body[:500])  # Print the first 500 characters of the body
