@@ -6,7 +6,7 @@ from http.server import SimpleHTTPRequestHandler
 import socketserver
 from threading import Thread
 from scapy.all import *
-import simple_http_get
+from requests_test import simple_http_get
 
 # Configuration
 attacker_ip = "192.168.2.2"  # Replace with your actual IP address
