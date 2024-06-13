@@ -10,9 +10,16 @@ def get_vlan_id(pkt):
         return pkt[Dot1Q].vlan
     return None
 
+def dtp_filter(pkt):
+    return (
+        pkt.haslayer(SNAP) and
+        pkt.getlayer(SNAP).OUI == 0x00000C and
+        pkt.getlayer(SNAP).code == 0x2004
+    )
+
 def get_dtp_packet(interface):
     def pkt_callback(pkt):
-        if pkt.haslayer(DTP):
+        if dtp_filter(pkt):
             src_mac = pkt.src
             dst_mac = pkt.dst
             vlan_id = get_vlan_id(pkt)
@@ -22,7 +29,7 @@ def get_dtp_packet(interface):
             # Add additional functionality here to handle the spoofed packet
             send_dtp_packet(interface, src_mac, dst_mac, vlan_id)
 
-    sniff(iface=interface, filter="ether proto 0x2004", prn=pkt_callback, count=1)
+    sniff(iface=interface, prn=pkt_callback, count=1)
 
 def send_dtp_packet(interface, src_mac, dst_mac, vlan_id):
     dtp_packet = (
