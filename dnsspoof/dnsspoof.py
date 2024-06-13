@@ -9,7 +9,7 @@ from scapy.all import *
 
 # Configuration
 attacker_ip = "192.168.2.1"  # Replace with your actual IP address
-target_domain = "xsite.singaporetech.edu.sg"
+target_domain = "fs.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
 
 # Function to clone the website
