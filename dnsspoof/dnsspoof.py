@@ -113,7 +113,7 @@ with open(index_path, 'w', encoding='utf-8') as file:
     file.write(html_content)
 
 # Start the web server in a separate thread
-web_server_thread = Thread(target=start_web_server, args=(8082, "test1"))
+web_server_thread = Thread(target=start_web_server, args=(80, "test1"))
 web_server_thread.start()
 
 # Start the attacker's server in a separate thread
