@@ -1,0 +1,10 @@
+.inputbox {width:350px;clear:left;padding:10px 0 10px 10px;}
+.inputrow {padding-top: 10px;}
+.inputlabel {float:left;padding-right:20px; width:70px;color:#666;font-size:14px;font-weight:bold;}
+.inputfield {clear:right;width:150px;}
+.forgotrow a {color:#666;font-size:14px;}
+.submit {padding-left:90px;padding-bottom:10px;}
+.forgotrow {padding-left:90px;}
+.submit input {font-size:16px;}
+.failed {color: #ff0000; clear: both;}
+.hidden {display: none !important;}
