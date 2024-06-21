@@ -11,4 +11,6 @@ open another terminal
 
 `python dnsspoof/dnsspoof.py`
 
-browse `fs.singaporetech.edu.sg`
+browse `fs.singaporetech.edu.sg` on the victim PC and enter password
+
+password will appear on the attacker pc in a txt file
