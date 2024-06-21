@@ -5,6 +5,8 @@
 
 `pip install scapy beautifulsoup4 requests`
 
+change IP addresses appropriately in `constants.py`
+
 `python mitm.py`
 
 open another terminal
