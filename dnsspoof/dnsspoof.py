@@ -6,9 +6,10 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer, BaseHTTPRequestHan
 import socketserver
 from threading import Thread
 from scapy.all import *
+from constants import ATTACKER_IP
 
 # Configuration
-attacker_ip = "192.168.2.1"  # Replace with your actual IP address
+attacker_ip = ATTACKER_IP
 target_domain = "fs.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
 attacker_server_port = 8080
