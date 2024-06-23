@@ -27,7 +27,7 @@ def poison(victim_ip, victim_mac, gateway_ip, gateway_mac):
     while True:
         send(poison_victim)
         send(poison_gateway)
-        time.sleep(2)
+        time.sleep(1)
         
 # Function to enable IP forwarding
 def enable_ip_forwarding():
