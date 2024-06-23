@@ -11,7 +11,7 @@ change IP addresses appropriately in `constants.py`
 
 open another terminal
 
-`python dnsspoof/dnsspoof.py`
+`python dnsspoof.py`
 
 browse `fs.singaporetech.edu.sg` on the victim PC and enter password
 
