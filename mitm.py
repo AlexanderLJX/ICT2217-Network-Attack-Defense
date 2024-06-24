@@ -1,8 +1,7 @@
-from scapy.all import srp, Ether, ARP, send
+from scapy.all import srp, Ether, ARP, send, sniff
 import sys
 import threading
 import time
-from sniffer import packet_sniffer
 import constants as c
 import os
 
@@ -74,7 +73,7 @@ if __name__ == "__main__":
 
         # Start packet sniffer
         print("[*] Starting packet sniffer. [CTRL+C to stop]")
-        packet_sniffer()
+        sniff(filter="ip host " + c.VICTIM_IP, prn=lambda x: x.show())
 
     except KeyboardInterrupt:
         print("[*] Stopping the script...")
